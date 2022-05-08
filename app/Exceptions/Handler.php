@@ -115,7 +115,10 @@ class Handler extends ExceptionHandler
                 return response()->json([], $exception->getCode());
             }
             if ($exception->getCode() !== 0) {
-                return $this->errorResponse($exception->getMessage(), $exception->getCode());
+                return $this->errorResponseWithMessage(
+                    message: $exception->getMessage(),
+                    code   : $exception->getCode()
+                );
             }
         }
 
@@ -123,33 +126,37 @@ class Handler extends ExceptionHandler
             return $this->convertValidationExceptionToResponse($exception, $request);
         }
 
-        if($exception->getCode() === Response::HTTP_UNPROCESSABLE_ENTITY){
-            return $this->errorResponse($exception->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        if ($exception->getCode() === Response::HTTP_UNPROCESSABLE_ENTITY) {
+            return $this->errorResponseWithMessage(
+                message: $exception->getMessage(),
+                code   : Response::HTTP_UNPROCESSABLE_ENTITY
+            );
         }
 
-        if($exception instanceof ServiceUnavailableHttpException){
-            return $this->errorResponse($exception->getMessage(), Response::HTTP_SERVICE_UNAVAILABLE);
+        if ($exception instanceof ServiceUnavailableHttpException) {
+            return $this->errorResponseWithMessage(message: $exception->getMessage());
         }
 
         if ($exception instanceof ModelNotFoundException) {
             $model = strtolower(class_basename($exception->getModel()));
-            return $this->errorResponse(translateText('There is no instance of') . " {$model} " .
-                translateText('with the specified id'), \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND);
+            return $this->errorResponseWithMessage(
+                message: translateText(
+                             'There is no instance of'
+                         ) . " {$model} " .
+                         translateText('with the specified id'),
+                code   : \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND
+            );
         }
 
         if ($exception instanceof AuthenticationException) {
-            $searches = [ 'api/ip_who_is', 'api/users', 'api/cashier' ];
-            $path     = request()->path();
-            if (Str::contains($path, $searches) === true) {
-                SendSlackNotificationService::execute($exception);
-            }
+            SendSlackNotificationService::execute($exception);
             return $this->unauthenticated($request, $exception);
         }
 
         if ($exception instanceof AuthorizationException) {
-            return $this->errorResponse(
-                translateText('You do not have permissions to execute this action'),
-                Response::HTTP_FORBIDDEN
+            return $this->errorResponseWithMessage(
+                message: translateText('You do not have permissions to execute this action'),
+                code   : Response::HTTP_FORBIDDEN
             );
         }
 
@@ -159,12 +166,15 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof MethodNotAllowedHttpException) {
-            return $this->errorResponse(translateText('The specified method is invalid'), \Symfony\Component\HttpFoundation\Response::HTTP_METHOD_NOT_ALLOWED);
+            return $this->errorResponseWithMessage(
+                translateText('The specified method is invalid'),
+                \Symfony\Component\HttpFoundation\Response::HTTP_METHOD_NOT_ALLOWED
+            );
         }
 
         if ($exception instanceof HttpException) {
             SendSlackNotificationService::execute($exception);
-            return $this->errorResponse($exception->getMessage(), $exception->getStatusCode());
+            return $this->errorResponseWithMessage($exception->getMessage(), $exception->getStatusCode());
         }
 
         if ($exception instanceof QueryException) {
@@ -173,9 +183,14 @@ class Handler extends ExceptionHandler
             SendSlackNotificationService::execute($exception);
             $code = $exception->getCode();
             if ($code == 1451) {
-                return $this->errorResponse('You can not delete the resource because the resource is related with someone else.', \Symfony\Component\HttpFoundation\Response::HTTP_CONFLICT);
+                return $this->errorResponseWithMessage(
+                    'You can not delete the resource because the resource is related with someone else.',
+                    \Symfony\Component\HttpFoundation\Response::HTTP_CONFLICT
+                );
             }
-            return $this->errorResponse('Query error. ' . $exception->getMessage(), Response::HTTP_SERVICE_UNAVAILABLE);
+            return $this->errorResponseWithMessage(
+                'Query error. ' . $exception->getMessage(), Response::HTTP_SERVICE_UNAVAILABLE
+            );
         }
 
         if ($exception instanceof TokenMismatchException) {
