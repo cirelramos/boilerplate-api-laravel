@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Core\Teams\Models\Team;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -30,6 +33,7 @@ class TeamsTableSeeder extends Seeder
             'logo'   => '',
             'rank'   => 8,
             'active' => 1,
+            'created_at' => Carbon::now(),
         ];
         $newTeams[] = [
             'name'   => 'national',
@@ -38,6 +42,7 @@ class TeamsTableSeeder extends Seeder
             'logo'   => '',
             'rank'   => 6,
             'active' => 1,
+            'created_at' => Carbon::now(),
         ];
         $newTeams[] = [
             'name'   => 'regional',
@@ -46,6 +51,7 @@ class TeamsTableSeeder extends Seeder
             'logo'   => '',
             'rank'   => 2,
             'active' => 1,
+            'created_at' => Carbon::now(),
         ];
 
         Team::insert($newTeams);

@@ -1,6 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Core\Players\Models\Player;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -30,6 +33,7 @@ class PlayersTableSeeder extends Seeder
             'rank'   => 5,
             'active' => 1,
             'renew'  => 1,
+            'created_at' => Carbon::now(),
         ];
         $newPlayers[] = [
             'name'   => 'Jose Perez',
@@ -38,6 +42,7 @@ class PlayersTableSeeder extends Seeder
             'rank'   => 10,
             'active' => 1,
             'renew'  => 0,
+            'created_at' => Carbon::now(),
         ];
         $newPlayers[] = [
             'name'   => 'Carlos Gutierrez',
@@ -46,6 +51,7 @@ class PlayersTableSeeder extends Seeder
             'rank'   => 1,
             'active' => 0,
             'renew'  => 1,
+            'created_at' => Carbon::now(),
         ];
 
         Player::insert($newPlayers);
