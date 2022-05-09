@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Core\Base\Traits;
+namespace App\Core\Auth\Traits\Auth;
 
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 
@@ -64,9 +65,9 @@ trait ThrottlesLoginTrait
             ] );
         $message = [
             'error' => [$messageError],
-            'info' => 'demasiados intentos',
+            'info' => 'a lot try',
         ];
-        throw new \Exception( json_encode( $message ), 429 );
+        throw new \Exception( json_encode( $message ),  Response::HTTP_TOO_MANY_REQUESTS);
     }
 
     /**

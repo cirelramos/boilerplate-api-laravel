@@ -14,5 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::resource('players', 'Players\Controllers\PlayerController');
+Route::resource('teams', 'Players\Controllers\TeamController');
 
-Route::resource('region_rapi', 'Countries\Controllers\RegionRapiController');
+Route::post('oauth/login', 'Auth\Controllers\LoginController@login')->name('login');
+Route::get('oauth/logout', 'Auth\Controllers\LoginController@logout')->name('logout');

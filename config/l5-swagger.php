@@ -181,35 +181,21 @@ return [
                 ],
                 */
 
-                'id_country'          => [
-                    'type'        => 'apiKey',
-                    'description' => 'country id.',
-                    'in'          => 'query',
-                    'name'        => 'id_country',
-                ],
-                'user_ip'          => [
-                    'type'        => 'apiKey',
-                    'description' => 'IP.',
-                    'in'          => 'query',
-                    'name'        => 'user_ip',
-                ],
-                'Key-access'       => [
-                    'type'        => 'apiKey',
-                    'description' => 'Key to external service// test_stage: KmxecbdMv83rgznzD5lq4PIqRJcsDGo',
-                    'in'          => 'header',
-                    'name'        => 'Key-access',
-                ],
-                'id-system'       => [
-                    'type'        => 'apiKey',
-                    'description' => 'id system used for external service',
-                    'in'          => 'header',
-                    'name'        => 'id-system',
-                ],
-                'id-user'       => [
-                    'type'        => 'apiKey',
-                    'description' => 'id system used for external service',
-                    'in'          => 'header',
-                    'name'        => 'id-user',
+                'passport' => [
+                    'type'        => 'oauth2',
+                    // The type of the security scheme. Valid values are "basic", "apiKey" or "oauth2".
+                    'description' => 'Laravel passport password.',
+                    'in' => 'header',
+                    'scheme' => 'http',
+                    'flows' => [
+                        "password" => [
+                            "authorizationUrl" => config('app.url') . '/api/oauth/login',
+                            "tokenUrl" => config('app.url') . '/api/oauth/login',
+                            "refreshUrl" => config('app.url') . '/token/refresh',
+                            "scopes" => []
+                        ],
+                    ],
+                    //"scopes" => [],
                 ],
                 'Content-Language' => [
                     'type'        => 'apiKey',

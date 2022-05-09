@@ -19,57 +19,43 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
  * @OA\Post(
- *   path="/oauth/token",
- *   summary="Request access token",
- *   tags={"Authentication"},
- *  	@OA\RequestBody(
- *          required=true,
- *          @OA\MediaType(
- *              mediaType="multipart/form-data",
- *              @OA\Schema(
- *     required={"client_id", "client_secret", "grant_type"},
- *   @OA\Property(
- *     property="client_id",
- *     description="Client Id",
+ * path="/oauth/login",
+ * summary="Sign in",
+ * description="Login by email, password",
+ * operationId="authLogin",
+ * tags={"Auth"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass user credentials",
+ *    @OA\JsonContent(
+ *       required={"email","password"},
+ *       @OA\Property(property="email", type="string", format="email", example="user1@mail.com"),
+ *       @OA\Property(property="password", type="string", format="password", example="PassWord12345"),
+ *       @OA\Property(property="persistent", type="boolean", example="true"),
+ *    ),
+ * ),
+ *   @OA\Response(response=200, description="",
+ *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/200"),},),
  *   ),
- *   @OA\Property(
- *     property="client_secret",
- *     description="Client Secret",
+ *   @OA\Response(response=401, description="",
+ *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
  *   ),
- *   @OA\Property(
- *     property="grant_type",
- *     description="Authentication type (password || client_credentials || refresh_token)",
+ *   @OA\Response(response=403, description="",
+ *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/403"),},),
  *   ),
- *   @OA\Property(
- *     property="username",
- *     description="User to authenticate (email)",
+ *   @OA\Response(response=404, description="",
+ *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/404"),},),
  *   ),
- *   @OA\Property(
- *     property="password",
- *     description="User password",
+ *   @OA\Response(response=405, description="",
+ *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/405"),},),
  *   ),
- *   @OA\Property(
- *     property="refresh_token",
- *     description="Token to refresh",
+ *   @OA\Response(response=422, description="",
+ *      @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/422"),},),
  *   ),
- *   @OA\Property(
- *     property="pcbl",
- *     description="free spin login",
- *   ),
- *               ),
- *           ),
- *       ),
- *   security={
- *     {"user_ip":{},  "Content-Language":{}}
- *   },
- *   @OA\Response(
- *     response=200,
- *     description="Successful operation",
- *     @OA\Schema(
- *     ),
+ *   @OA\Response(response=500, description="",
+ *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/500"),},),
  *   ),
  * )
- *
  */
 
 /**

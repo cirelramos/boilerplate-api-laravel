@@ -6,10 +6,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
-        "guzzlehttp/guzzle": "^7.2",
-        "laravel/framework": "^9.2",
-        "laravel/sanctum": "^2.14.1",
-        "laravel/tinker": "^2.7",
         "cirelramos/aws-database-client": "^1.0",
         "cirelramos/cache-query-builder": "^1.0",
         "cirelramos/error-notification": "^1.0",
@@ -18,8 +14,14 @@
         "cirelramos/logs": "^1.0",
         "cirelramos/response": "^1.0",
         "darkaonline/l5-swagger": "8.*",
-        "zircote/swagger-php": "3.*",
-        "sentry/sentry-laravel": "^2.12"
+        "guzzlehttp/guzzle": "^7.2",
+        "laravel/framework": "^9.2",
+        "laravel/horizon": "^5.9",
+        "laravel/passport": "^10.4",
+        "laravel/sanctum": "^2.14.1",
+        "laravel/tinker": "^2.7",
+        "sentry/sentry-laravel": "^2.12",
+        "zircote/swagger-php": "3.*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
