@@ -144,7 +144,10 @@ class Handler extends ExceptionHandler
 
         if ($exception instanceof AuthenticationException) {
             SendSlackNotificationService::execute($exception);
-            return $this->unauthenticated($request, $exception);
+            return $this->errorResponseWithMessage(
+                message: translateText('Unauthenticated'),
+                code   : Response::HTTP_UNAUTHORIZED
+            );
         }
 
         if ($exception instanceof AuthorizationException) {
