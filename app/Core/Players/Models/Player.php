@@ -34,4 +34,6 @@ class Player extends CacheModel
         'active',
         'renew',
     ];
+
+    public const TAG_CACHE_MODEL = 'TAG_CACHE_PLAYER_';
 }

@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Core\Countries\Controllers;
+namespace App\Core\Players\Controllers;
 
-use App\Core\Countries\Collections\RegionRapiCollection;
 use App\Core\Countries\Resources\RegionRapiResource;
 use App\Core\Countries\Models\RegionRapi;
-use App\Core\Countries\Services\DeleteCountriesOfRegionService;
-use App\Core\Countries\Services\FormatCountriesToCreateRegionService;
-use App\Core\Countries\Services\GetCountriesService;
-use App\Core\Countries\Services\StoreCountriesOfRegionService;
+use App\Core\Players\Collections\PlayersCollection;
+use App\Core\Players\Models\Player;
+use App\Core\Players\Requests\StorePlayerRequest;
+use App\Core\Players\Resources\PlayerResource;
+use Cirelramos\Cache\Services\GetCacheService;
+use Cirelramos\Cache\Services\SetCacheService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Cirelramos\ErrorNotification\Services\CatchNotificationService;
 use App\Http\Controllers\Controller;
@@ -17,24 +19,22 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Core\Countries\Requests\StoreRegionRapiRequest;
 
-class RegionRapiController extends Controller
+/**
+ *
+ */
+class PlayersController extends Controller
 {
-    public function __construct(
-        private StoreCountriesOfRegionService $storeCountriesOfRegionService,
-        private DeleteCountriesOfRegionService $deleteCountriesOfRegionService,
-        private GetCountriesService $getCountriesService,
-        private FormatCountriesToCreateRegionService $formatCountriesToCreateRegionService
-    ) {
+    public function __construct()
+    {
         $this->middleware('check.external_access');
     }
 
     /**
      * @OA\Get(
-     *   path="/region_rapi",
-     *   summary="Show regions list ",
-     *   tags={"Region Rapi"},
+     *   path="/players",
+     *   summary="Show players list ",
+     *   tags={"Player"},
      *   @OA\Parameter(
      *     name="page_pagination",
      *     in="query",
@@ -50,7 +50,7 @@ class RegionRapiController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/RegionRapi"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -74,44 +74,37 @@ class RegionRapiController extends Controller
      * )
      *
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $regions = RegionRapi::with(['countriesRegions.country'])
-            ->paginateByRequest();
+        $players = Player::query()->orderByRequest()->paginateFromCacheByRequest();
 
-        $regionsCollection = new RegionRapiCollection($regions);
+        $playersCollection = new PlayersCollection($players);
 
-        $data[ 'regions' ] = $regionsCollection;
+        $data[ 'players' ] = $playersCollection;
 
         return $this->successResponseWithMessage($data);
     }
 
     public function create()
     {
-        $countries = $this->getCountriesService->execute();
-
-        $data[ 'countries' ] = $countries;
-
-        return $this->successResponseWithMessage($data);
-
     }
 
     /**
-     * Public method to save a new region in RAPI
+     * Public method to save a new player
      *
-     * @param StoreRegionRapiRequest $request
+     * @param StorePlayerRequest $request
      * @return  JsonResponse
      */
     /**
      * @OA\Post(
-     *   path="/region_rapi",
-     *   summary="Create a new region record in RAPI",
-     *   tags={"Region Rapi"},
+     *   path="/players",
+     *   summary="Create a new player record",
+     *   tags={"Player"},
      *
      *   @OA\RequestBody(
      *       @OA\JsonContent(
      *          allOf={
-     *             @OA\Schema(ref="#/components/schemas/StoreRegionRapi"),
+     *             @OA\Schema(ref="#/components/schemas/StorePlayerRequest"),
      *          },
      *      ),
      *    ),
@@ -120,7 +113,7 @@ class RegionRapiController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/RegionRapi"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -144,7 +137,7 @@ class RegionRapiController extends Controller
      * )
      *
      */
-    public function store(StoreRegionRapiRequest $request)
+    public function store(StorePlayerRequest $request): ?JsonResponse
     {
         $successMessage = translateText('OPERATION_SUCCESSFUL_MESSAGE');
         $errorMessage   = translateText('AN_ERROR_HAS_OCCURRED_MESSAGE');
@@ -152,16 +145,12 @@ class RegionRapiController extends Controller
         try {
             DB::beginTransaction();
 
-            $regionRapi = new RegionRapi();
-            $regionRapi->fill($request->validated());
-            $regionRapi->save();
-            $this->storeCountriesOfRegionService->execute($regionRapi, $request);
-            $regionRapi->saveWithCache();
+            $player = new Player();
+            $player->fill($request->validated());
+            $player->saveWithCache();
             DB::commit();
 
-            $regionRapi->load(['countriesRegions.country']);
-
-            $data[ 'region' ] = new RegionRapiResource($regionRapi);
+            $data[ 'player' ] = new PlayerResource($player);
 
             return $this->successResponseWithMessage($data, $successMessage, Response::HTTP_CREATED);
 
@@ -169,23 +158,23 @@ class RegionRapiController extends Controller
             DB::rollBack();
 
             CatchNotificationService::error([
-                'exception' => $exception,
-                'usersId'   => Auth::id(),
-            ]);
+                                                'exception' => $exception,
+                                                'usersId'   => Auth::id(),
+                                            ]);
 
-            return $this->errorCatchResponse($exception, $errorMessage, Response::HTTP_SERVICE_UNAVAILABLE);
+            return $this->errorCatchResponse($exception, $errorMessage);
         }
     }
 
     /**
      * @OA\Get(
-     *   path="/region_rapi/{region_rapi_id}",
-     *   summary="Show specific region rapi ",
-     *   tags={"Region Rapi"},
+     *   path="/players/{player}",
+     *   summary="Show specific Player ",
+     *   tags={"Player"},
      *   @OA\Parameter(
-     *     name="region_rapi_id",
+     *     name="player",
      *     in="path",
-     *     description="Region Rapi ID",
+     *     description="identifier Player",
      *     required=true,
      *   ),
      *   security={
@@ -193,7 +182,7 @@ class RegionRapiController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/RegionRapi"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -215,27 +204,47 @@ class RegionRapiController extends Controller
      *   ),
      *
      * )
-     * @param RegionRapi $regionRapi
+     * @param Player $player
      * @return JsonResponse
+     * @throws Exception
      */
-    public function show(RegionRapi $regionRapi)
+    public function show($player): JsonResponse
     {
-        $regionRapi->load(['countriesRegions.country']);
+        $tag       = Player::TAG_CACHE_MODEL;
+        $customKey = "player_show";
+        $customKey .= "_" . $player;
+        $dataCache = GetCacheService::execute($customKey, $tag);
 
-        $data[ 'region' ] = new RegionRapiResource($regionRapi);
+        if (empty($dataCache) === false) {
+            return $dataCache;
+        }
 
-        return $this->successResponseWithMessage($data);
+        $player = Player::query()->where('id_player', $player)->first();
+
+        if ($player === null) {
+            $exception = new ModelNotFoundException();
+            $exception->setModel(Player::class);
+            throw $exception;
+        }
+
+        $data[ 'player' ] = new PlayerResource($player);
+
+        $response = $this->successResponseWithMessage($data);
+
+        SetCacheService::execute($customKey, $response, $tag);
+
+        return $response;
     }
 
     /**
      * @OA\Put(
-     *   path="/region_rapi/{region_rapi_id}",
-     *   summary="Update a record for a region in RAPI",
-     *   tags={"Region Rapi"},
+     *   path="/players/{player}",
+     *   summary="Update a record for a player",
+     *   tags={"Player"},
      *   @OA\Parameter(
-     *     name="region_rapi_id",
+     *     name="player",
      *     in="path",
-     *     description="Region Rapi ID",
+     *     description="identifier Player",
      *     required=true,
      *   ),
      *
@@ -252,7 +261,7 @@ class RegionRapiController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/RegionRapi"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -274,11 +283,11 @@ class RegionRapiController extends Controller
      *   ),
      *
      * )
-     * @param StoreRegionRapiRequest $request
-     * @param RegionRapi             $regionRapi
-     * @return JsonResponse
+     * @param Player $player
+     * @param StorePlayerRequest $request
+     * @return JsonResponse|null
      */
-    public function update(RegionRapi $regionRapi, StoreRegionRapiRequest $request)
+    public function update(Player $player, StorePlayerRequest $request): ?JsonResponse
     {
         $successMessage = translateText('SUCCESSFUL_UPDATE_MESSAGE');
         $errorMessage   = translateText('AN_ERROR_HAS_OCCURRED_MESSAGE');
@@ -286,16 +295,11 @@ class RegionRapiController extends Controller
         try {
             DB::beginTransaction();
 
-            $regionRapi->fill($request->validated());
-            $regionRapi->save();
-            $this->deleteCountriesOfRegionService->execute($regionRapi);
-            $this->storeCountriesOfRegionService->execute($regionRapi, $request);
-            $regionRapi->saveWithCache();
+            $player->fill($request->validated());
+            $player->saveWithCache();
             DB::commit();
 
-            $regionRapi->load(['countriesRegions.country']);
-
-            $data[ 'region' ] = new RegionRapiResource($regionRapi);
+            $data[ 'player' ] = new PlayerResource($player);
 
             return $this->successResponseWithMessage($data, $successMessage);
 
@@ -303,23 +307,23 @@ class RegionRapiController extends Controller
             DB::rollBack();
 
             CatchNotificationService::error([
-                'exception' => $exception,
-                'usersId'   => Auth::id(),
-            ]);
+                                                'exception' => $exception,
+                                                'usersId'   => Auth::id(),
+                                            ]);
 
-            return $this->errorCatchResponse($exception, $errorMessage, Response::HTTP_SERVICE_UNAVAILABLE);
+            return $this->errorCatchResponse($exception, $errorMessage);
         }
     }
 
     /**
      * @OA\Delete(
-     *   path="/region_rapi/{region_rapi_id}",
-     *   summary="Deleted specific region rapi ",
-     *   tags={"Region Rapi"},
+     *   path="/players/{player}",
+     *   summary="Deleted specific Player ",
+     *   tags={"Player"},
      *   @OA\Parameter(
-     *     name="region_rapi_id",
+     *     name="player",
      *     in="path",
-     *     description="Region Rapi ID",
+     *     description="identifier Player",
      *     required=true,
      *   ),
      *   security={
@@ -327,7 +331,7 @@ class RegionRapiController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/RegionRapi"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -351,7 +355,7 @@ class RegionRapiController extends Controller
      * )
      *
      */
-    public function destroy(RegionRapi $regionRapi)
+    public function destroy(Player $player): ?JsonResponse
     {
         $successMessage = translateText('OPERATION_SUCCESSFUL_MESSAGE');
         $errorMessage   = translateText('AN_ERROR_HAS_OCCURRED_MESSAGE');
@@ -359,11 +363,10 @@ class RegionRapiController extends Controller
         try {
             DB::beginTransaction();
 
-            $this->deleteCountriesOfRegionService->execute($regionRapi);
-            $regionRapi->deleteWithCache();
+            $player->deleteWithCache();
             DB::commit();
 
-            $data[ 'region' ] = new RegionRapiResource($regionRapi);
+            $data[ 'player' ] = new RegionRapiResource($player);
 
             return $this->successResponseWithMessage($data, $successMessage);
 
@@ -371,11 +374,11 @@ class RegionRapiController extends Controller
             DB::rollBack();
 
             CatchNotificationService::error([
-                'exception' => $exception,
-                'usersId'   => Auth::id(),
-            ]);
+                                                'exception' => $exception,
+                                                'usersId'   => Auth::id(),
+                                            ]);
 
-            return $this->errorCatchResponse($exception, $errorMessage, Response::HTTP_SERVICE_UNAVAILABLE);
+            return $this->errorCatchResponse($exception, $errorMessage);
         }
     }
 }
