@@ -105,7 +105,7 @@ class RegionRapiController extends Controller
     /**
      * @OA\Post(
      *   path="/region_rapi",
-     *   summary="Create a new region record in RAPI",
+     *   summary="Store a new region record in RAPI",
      *   tags={"Region Rapi"},
      *
      *   @OA\RequestBody(

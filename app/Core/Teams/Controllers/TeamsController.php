@@ -1,12 +1,16 @@
 <?php
 
-namespace App\Core\Players\Controllers;
+namespace App\Core\Teams\Controllers;
 
 use App\Core\Countries\Resources\RegionRapiResource;
-use App\Core\Players\Collections\PlayersCollection;
 use App\Core\Players\Models\Player;
-use App\Core\Players\Requests\StorePlayerRequest;
 use App\Core\Players\Resources\PlayerResource;
+use App\Core\Teams\Collections\TeamsCollection;
+use App\Core\Teams\Models\Team;
+use App\Core\Teams\Requests\StoreTeamRequest;
+use App\Core\Teams\Resources\TeamResource;
+use App\Core\Teams\Services\DeleteTeamHasPlayersService;
+use App\Core\Teams\Services\StoreTeamHasPlayersService;
 use Cirelramos\Cache\Services\GetCacheService;
 use Cirelramos\Cache\Services\SetCacheService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -22,18 +26,20 @@ use Illuminate\Support\Facades\Auth;
 /**
  *
  */
-class PlayersController extends Controller
+class TeamsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('check.external_access');
+    public function __construct(
+        private StoreTeamHasPlayersService  $storeTeamHasPlayersService,
+        private DeleteTeamHasPlayersService $deleteTeamHasPlayersService
+    ) {
+        // $this->middleware('check.external_access');
     }
 
     /**
      * @OA\Get(
-     *   path="/players",
-     *   summary="Show players list ",
-     *   tags={"Player"},
+     *   path="/teams",
+     *   summary="Show teams list ",
+     *   tags={"Team"},
      *   @OA\Parameter(
      *     name="page_pagination",
      *     in="query",
@@ -49,7 +55,7 @@ class PlayersController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Team"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -75,44 +81,26 @@ class PlayersController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $players = Player::query()->orderByRequest()->paginateFromCacheByRequest();
+        $teams = Team::query()->orderByRequest()->paginateFromCacheByRequest();
 
-        $playersCollection = new PlayersCollection($players);
+        $teamsCollection = new TeamsCollection($teams);
 
-        $data[ 'players' ] = $playersCollection;
+        $data[ 'teams' ] = $teamsCollection;
 
         return $this->successResponseWithMessage($data);
     }
 
-    public function create()
-    {
-    }
-
     /**
-     * Public method to save a new player
-     *
-     * @param StorePlayerRequest $request
-     * @return  JsonResponse
-     */
-    /**
-     * @OA\Post(
-     *   path="/players",
-     *   summary="Store a new player record",
-     *   tags={"Player"},
-     *
-     *   @OA\RequestBody(
-     *       @OA\JsonContent(
-     *          allOf={
-     *             @OA\Schema(ref="#/components/schemas/StorePlayerRequest"),
-     *          },
-     *      ),
-     *    ),
+     * @OA\Get(
+     *   path="/teams/create",
+     *   summary="data to store Team",
+     *   tags={"Team"},
      *   security={
      *     {"passport": {},  "Content-Language":{}}
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/200"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -136,7 +124,73 @@ class PlayersController extends Controller
      * )
      *
      */
-    public function store(StorePlayerRequest $request): ?JsonResponse
+    public function create()
+    {
+        $tag       = Player::TAG_CACHE_MODEL;
+        $customKey = "team_create";
+        $dataCache = GetCacheService::execute($customKey, $tag);
+
+        if (empty($dataCache) === false) {
+            return $dataCache;
+        }
+
+        $players = Player::all();
+        $data['players'] = PlayerResource::collection($players);
+
+        $response = $this->successResponseWithMessage($data);
+
+        SetCacheService::execute($customKey, $response, $tag);
+    }
+
+    /**
+     * Public method to save a new team
+     *
+     * @param StoreTeamRequest $request
+     * @return  JsonResponse
+     */
+    /**
+     * @OA\Post(
+     *   path="/teams",
+     *   summary="Store a new team record",
+     *   tags={"Team"},
+     *
+     *   @OA\RequestBody(
+     *       @OA\JsonContent(
+     *          allOf={
+     *             @OA\Schema(ref="#/components/schemas/StoreTeamRequest"),
+     *          },
+     *      ),
+     *    ),
+     *   security={
+     *     {"passport": {},  "Content-Language":{}}
+     *   },
+     *
+     *   @OA\Response(response=200, description="",
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Team"),},),
+     *   ),
+     *   @OA\Response(response=401, description="",
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
+     *   ),
+     *   @OA\Response(response=403, description="",
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/403"),},),
+     *   ),
+     *   @OA\Response(response=404, description="",
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/404"),},),
+     *   ),
+     *   @OA\Response(response=405, description="",
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/405"),},),
+     *   ),
+     *   @OA\Response(response=422, description="",
+     *      @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/422"),},),
+     *   ),
+     *   @OA\Response(response=500, description="",
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/500"),},),
+     *   ),
+     *
+     * )
+     *
+     */
+    public function store(StoreTeamRequest $request): ?JsonResponse
     {
         $successMessage = translateText('OPERATION_SUCCESSFUL_MESSAGE');
         $errorMessage   = translateText('AN_ERROR_HAS_OCCURRED_MESSAGE');
@@ -144,12 +198,14 @@ class PlayersController extends Controller
         try {
             DB::beginTransaction();
 
-            $player = new Player();
-            $player->fill($request->validated());
-            $player->saveWithCache();
+            $team = new Team();
+            $team->fill($request->validated());
+            $team->saveWithCache();
+            $this->storeTeamHasPlayersService->execute($team, $request);
+            $team->saveWithCache();
             DB::commit();
 
-            $data[ 'player' ] = new PlayerResource($player);
+            $data[ 'team' ] = new TeamResource($team);
 
             return $this->successResponseWithMessage($data, $successMessage, Response::HTTP_CREATED);
 
@@ -167,13 +223,13 @@ class PlayersController extends Controller
 
     /**
      * @OA\Get(
-     *   path="/players/{player}",
-     *   summary="Show specific Player ",
-     *   tags={"Player"},
+     *   path="/teams/{team}",
+     *   summary="Show specific Team ",
+     *   tags={"Team"},
      *   @OA\Parameter(
-     *     name="player",
+     *     name="team",
      *     in="path",
-     *     description="identifier Player",
+     *     description="identifier Team",
      *     required=true,
      *   ),
      *   security={
@@ -181,7 +237,7 @@ class PlayersController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Team"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -203,30 +259,30 @@ class PlayersController extends Controller
      *   ),
      *
      * )
-     * @param Player $player
+     * @param Team $team
      * @return JsonResponse
      * @throws Exception
      */
-    public function show($player): JsonResponse
+    public function show($team): JsonResponse
     {
-        $tag       = Player::TAG_CACHE_MODEL;
-        $customKey = "player_show";
-        $customKey .= "_" . $player;
+        $tag       = Team::TAG_CACHE_MODEL;
+        $customKey = "team_show";
+        $customKey .= "_" . $team;
         $dataCache = GetCacheService::execute($customKey, $tag);
 
         if (empty($dataCache) === false) {
             return $dataCache;
         }
 
-        $player = Player::query()->where('id_player', $player)->first();
+        $team = Team::query()->where('id_team', $team)->first();
 
-        if ($player === null) {
+        if ($team === null) {
             $exception = new ModelNotFoundException();
-            $exception->setModel(Player::class);
+            $exception->setModel(Team::class);
             throw $exception;
         }
 
-        $data[ 'player' ] = new PlayerResource($player);
+        $data[ 'team' ] = new TeamResource($team);
 
         $response = $this->successResponseWithMessage($data);
 
@@ -237,13 +293,13 @@ class PlayersController extends Controller
 
     /**
      * @OA\Put(
-     *   path="/players/{player}",
-     *   summary="Update a record for a player",
-     *   tags={"Player"},
+     *   path="/teams/{team}",
+     *   summary="Update a record for a team",
+     *   tags={"Team"},
      *   @OA\Parameter(
-     *     name="player",
+     *     name="team",
      *     in="path",
-     *     description="identifier Player",
+     *     description="identifier Team",
      *     required=true,
      *   ),
      *
@@ -260,7 +316,7 @@ class PlayersController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Team"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -282,11 +338,11 @@ class PlayersController extends Controller
      *   ),
      *
      * )
-     * @param Player $player
-     * @param StorePlayerRequest $request
+     * @param Team $team
+     * @param StoreTeamRequest $request
      * @return JsonResponse|null
      */
-    public function update(Player $player, StorePlayerRequest $request): ?JsonResponse
+    public function update(Team $team, StoreTeamRequest $request): ?JsonResponse
     {
         $successMessage = translateText('SUCCESSFUL_UPDATE_MESSAGE');
         $errorMessage   = translateText('AN_ERROR_HAS_OCCURRED_MESSAGE');
@@ -294,11 +350,14 @@ class PlayersController extends Controller
         try {
             DB::beginTransaction();
 
-            $player->fill($request->validated());
-            $player->saveWithCache();
+            $team->fill($request->validated());
+            $team->saveWithCache();
+            $this->deleteTeamHasPlayersService->execute($team);
+            $this->storeTeamHasPlayersService->execute($team, $request);
+            $team->saveWithCache();
             DB::commit();
 
-            $data[ 'player' ] = new PlayerResource($player);
+            $data[ 'team' ] = new TeamResource($team);
 
             return $this->successResponseWithMessage($data, $successMessage);
 
@@ -316,13 +375,13 @@ class PlayersController extends Controller
 
     /**
      * @OA\Delete(
-     *   path="/players/{player}",
-     *   summary="Deleted specific Player ",
-     *   tags={"Player"},
+     *   path="/teams/{team}",
+     *   summary="Deleted specific Team ",
+     *   tags={"Team"},
      *   @OA\Parameter(
-     *     name="player",
+     *     name="team",
      *     in="path",
-     *     description="identifier Player",
+     *     description="identifier Team",
      *     required=true,
      *   ),
      *   security={
@@ -330,7 +389,7 @@ class PlayersController extends Controller
      *   },
      *
      *   @OA\Response(response=200, description="",
-     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Player"),},),
+     *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/Team"),},),
      *   ),
      *   @OA\Response(response=401, description="",
      *     @OA\JsonContent(allOf={@OA\Schema(ref="#/components/schemas/401"),},),
@@ -354,7 +413,7 @@ class PlayersController extends Controller
      * )
      *
      */
-    public function destroy(Player $player): ?JsonResponse
+    public function destroy(Team $team): ?JsonResponse
     {
         $successMessage = translateText('OPERATION_SUCCESSFUL_MESSAGE');
         $errorMessage   = translateText('AN_ERROR_HAS_OCCURRED_MESSAGE');
@@ -362,10 +421,11 @@ class PlayersController extends Controller
         try {
             DB::beginTransaction();
 
-            $player->deleteWithCache();
+            $this->deleteTeamHasPlayersService->execute($team);
+            $team->deleteWithCache();
             DB::commit();
 
-            $data[ 'player' ] = new RegionRapiResource($player);
+            $data[ 'team' ] = new RegionRapiResource($team);
 
             return $this->successResponseWithMessage($data, $successMessage);
 

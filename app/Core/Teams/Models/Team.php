@@ -34,4 +34,6 @@ class Team extends CacheModel
         'rank',
         'active',
     ];
+
+    public const TAG_CACHE_MODEL = 'TAG_CACHE_TEAM_';
 }
