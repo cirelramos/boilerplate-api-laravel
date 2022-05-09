@@ -26,7 +26,7 @@ class PlayersController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('check.external_access');
+        $this->middleware('auth:api');
     }
 
     /**

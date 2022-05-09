@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Core\User\Models\User;
+use App\Core\Users\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -27,19 +27,16 @@ class UserTableSeeder extends Seeder
         $newUsers[] = [
             'name'      => 'user 1',
             'email'     => 'user1@gmail.com',
-            'confirmed' => true,
             'password'  => bcrypt('123456'),
         ];
         $newUsers[] = [
             'name'      => 'user 2',
             'email'     => 'user2@gmail.com',
-            'confirmed' => true,
             'password'  => bcrypt('123456'),
         ];
         $newUsers[] = [
             'name'      => 'user 3',
             'email'     => 'user3@gmail.com',
-            'confirmed' => true,
             'password'  => bcrypt('123456'),
         ];
 

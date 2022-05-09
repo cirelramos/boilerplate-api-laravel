@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::resource('players', 'Players\Controllers\PlayerController');
-Route::resource('teams', 'Players\Controllers\TeamController');
+Route::resource('teams', 'Teams\Controllers\TeamController');
 
 Route::post('oauth/login', 'Auth\Controllers\LoginController@login')->name('login');
 Route::get('oauth/logout', 'Auth\Controllers\LoginController@logout')->name('logout');

@@ -2,6 +2,13 @@
 
 namespace App\Exceptions;
 
+use Cirelramos\ErrorNotification\Services\GetInfoFromExceptionService;
+use Cirelramos\ErrorNotification\Services\SendEmailNotificationService;
+use Cirelramos\ErrorNotification\Services\SendSlackNotificationService;
+use Cirelramos\ExternalRequest\Services\CatchExternalRequestService;
+use Cirelramos\Languages\Services\LanguageService;
+use Cirelramos\Logs\Services\SendLogConsoleService;
+use Cirelramos\Response\Traits\ResponseTrait;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -11,15 +18,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Response;
 use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Cirelramos\ErrorNotification\Services\GetInfoFromExceptionService;
-use Cirelramos\ErrorNotification\Services\SendEmailNotificationService;
-use Cirelramos\ErrorNotification\Services\SendSlackNotificationService;
-use Cirelramos\ExternalRequest\Services\CatchExternalRequestService;
-use Cirelramos\Languages\Services\LanguageService;
-use Cirelramos\Logs\Services\SendLogConsoleService;
-use Cirelramos\Response\Traits\ResponseTrait;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -30,7 +29,6 @@ class Handler extends ExceptionHandler
 {
 
     use ResponseTrait;
-
 
     /**
      * A list of the exception types that are not reported.
@@ -44,7 +42,6 @@ class Handler extends ExceptionHandler
         \Illuminate\Session\TokenMismatchException::class,
         \Illuminate\Validation\ValidationException::class,
     ];
-
 
     /**
      * A list of exception types with their corresponding custom log levels.
@@ -94,7 +91,6 @@ class Handler extends ExceptionHandler
 
     public function handlerException($request, Throwable $exception)
     {
-
         $location = new LanguageService();
         $location->execute($request);
 
@@ -109,9 +105,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof HttpException) {
-
             if($exception->getCode() === Response::HTTP_FORBIDDEN){
-
                 return response()->json([], $exception->getCode());
             }
             if ($exception->getCode() !== 0) {
@@ -167,8 +161,8 @@ class Handler extends ExceptionHandler
 
         if ($exception instanceof MethodNotAllowedHttpException) {
             return $this->errorResponseWithMessage(
-                translateText('The specified method is invalid'),
-                \Symfony\Component\HttpFoundation\Response::HTTP_METHOD_NOT_ALLOWED
+                message: translateText('The specified method is invalid'),
+                code   : \Symfony\Component\HttpFoundation\Response::HTTP_METHOD_NOT_ALLOWED
             );
         }
 
@@ -218,7 +212,6 @@ class Handler extends ExceptionHandler
 
         return $this->errorCatchResponse($exception, translateText('Unexpected failure. Try later'));
     }
-
 
     /**
      * Register the exception handling callbacks for the application.

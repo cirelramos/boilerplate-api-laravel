@@ -3,8 +3,8 @@
 namespace App\Core\Auth\Controllers;
 
 use App\Core\Auth\Requests\LoginAuthRequest;
-use App\Core\Auth\Traits\Auth\AuthenticatesUsersTrait;
-use App\Core\Auth\Traits\Auth\ThrottlesLoginTrait;
+use App\Core\Auth\Traits\AuthenticatesUsersTrait;
+use App\Core\Auth\Traits\ThrottlesLoginTrait;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Cirelramos\ErrorNotification\Services\CatchNotificationService;
@@ -91,21 +91,14 @@ class LoginController extends Controller
             $this->incrementLoginAttempts($loginAuthRequest);
             $this->sendFailedLoginResponse($loginAuthRequest);
         } catch (Exception $exception) {
-            $message =
-                json_decode($exception->getMessage()) !== null ? json_decode(
-                    $exception->getMessage()
-                ) : $exception->getMessage();
-            $code    =
-                (int)($exception->getCode() !== 0 && $exception->getCode() < 530 && $exception->getCode(
-                ) > 100 ? $exception->getCode()
-                    : 500);
+            $message = $exception->getMessage();
 
             CatchNotificationService::error([
                                                 'exception' => $exception,
                                                 'usersId'   => Auth::id(),
                                             ]);
 
-            return $this->errorCatchResponse($exception, $message, $code);
+            return $this->errorCatchResponse($exception, $message);
         }
 
     }
@@ -160,7 +153,7 @@ class LoginController extends Controller
             return json_encode($data);
         }
 
-        return $this->successResponse($data, __('User logged'));
+        return $this->successResponseWithMessage($data, __('User logged'));
     }
 
     /**

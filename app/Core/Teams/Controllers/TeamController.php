@@ -26,13 +26,13 @@ use Illuminate\Support\Facades\Auth;
 /**
  *
  */
-class TeamsController extends Controller
+class TeamController extends Controller
 {
     public function __construct(
         private StoreTeamHasPlayersService  $storeTeamHasPlayersService,
         private DeleteTeamHasPlayersService $deleteTeamHasPlayersService
     ) {
-        // $this->middleware('check.external_access');
+        $this->middleware('auth:api');
     }
 
     /**

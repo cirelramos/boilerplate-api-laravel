@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Auth\Traits\Auth;
+namespace App\Core\Auth\Traits;
 
 use Exception;
 use Illuminate\Contracts\View\Factory;
@@ -163,12 +163,9 @@ trait AuthenticatesUsersTrait
     protected function sendFailedLoginResponse( Request $request ): void
     {
 
-        $message = [
-            'error' => [ __('Incorrect user or password') ],
-            'info' => __('Incorrect password'),
-        ];
+        $message = __('Incorrect user or password');
 
-        throw new Exception( json_encode( $message ), 422 );
+        throw new Exception( $message, \Illuminate\Http\Response::HTTP_UNPROCESSABLE_ENTITY );
     }
 
     /**

@@ -29,8 +29,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  *    description="Pass user credentials",
  *    @OA\JsonContent(
  *       required={"email","password"},
- *       @OA\Property(property="email", type="string", format="email", example="user1@mail.com"),
- *       @OA\Property(property="password", type="string", format="password", example="PassWord12345"),
+ *       @OA\Property(property="email", type="string", format="email", example="user1@gmail.com"),
+ *       @OA\Property(property="password", type="string", format="password", example="123456"),
  *       @OA\Property(property="persistent", type="boolean", example="true"),
  *    ),
  * ),
