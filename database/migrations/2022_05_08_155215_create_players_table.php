@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -21,6 +22,7 @@ return new class extends Migration {
             $table->integer('active')->comment("0=hasn't contract, 1=has contract")->default(0);
             $table->integer('renew')->comment("0=hasn't to renew contract, 1=has to renew contract")
                 ->default(0);
+            $table->timestamp('renew_at')->comment("when was renew")->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamps();
             $table->softDeletes();
         });

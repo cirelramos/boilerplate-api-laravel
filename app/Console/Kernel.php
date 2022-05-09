@@ -2,11 +2,14 @@
 
 namespace App\Console;
 
-use App\Core\Countries\Schedulers\UpdateRecordRegionRapiScheduler;
+use App\Core\Players\Schedulers\RenewContractPlayersScheduler;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Cirelramos\ErrorNotification\Schedulers\SendGroupNotificationScheduler;
 
+/**
+ *
+ */
 class Kernel extends ConsoleKernel
 {
     /**
@@ -17,7 +20,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
         SendGroupNotificationScheduler::class,
-        UpdateRecordRegionRapiScheduler::class,
+        RenewContractPlayersScheduler::class,
     ];
     /**
      * Define the application's command schedule.
@@ -32,7 +35,7 @@ class Kernel extends ConsoleKernel
             ->everyFiveMinutes()
             ->sendOutputTo('/dev/stderr');
 
-        $schedule->command('region-rapi:update-date-record')
+        $schedule->command('players:renew-contracts')
             ->withoutOverlapping()
             ->everyMinute()
             ->sendOutputTo('/dev/stderr');
