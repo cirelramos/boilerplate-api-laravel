@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Auth;
 /**
  *
  */
-class PlayersController extends Controller
+class PlayerController extends Controller
 {
     public function __construct()
     {

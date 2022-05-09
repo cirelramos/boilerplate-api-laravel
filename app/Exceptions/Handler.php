@@ -188,7 +188,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof TokenMismatchException) {
-            return redirect()->back()->withInput($request->input());
+            return $this->errorCatchResponse($exception, $exception->getMessage());
         }
 
         if ($exception instanceof ClientException) {
