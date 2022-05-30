@@ -238,7 +238,7 @@ class Handler extends ExceptionHandler
                     ->withInput($request->input())
                     ->withErrors($errors);
         }
-        $messageTranslate = translateInterTerm($e->getMessage());
+        $messageTranslate = __($e->getMessage());
         return $this->errorResponseWithMessage(
             $errors,
             $messageTranslate,
