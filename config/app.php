@@ -179,6 +179,9 @@ return [
 
         Laravel\Sanctum\SanctumServiceProvider::class,
 
+        //horizon
+        App\Providers\HorizonServiceProvider::class,
+
     ],
 
     /*

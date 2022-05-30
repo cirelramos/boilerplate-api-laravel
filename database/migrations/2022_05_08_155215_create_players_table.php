@@ -23,6 +23,7 @@ return new class extends Migration {
             $table->integer('renew')->comment("0=hasn't to renew contract, 1=has to renew contract")
                 ->default(0);
             $table->timestamp('renew_at')->comment("when was renew")->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('renew_next')->comment("next renew date")->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -52,6 +52,8 @@ class RenewContractPlayersJob implements ShouldQueue
                 'exception' => $exception,
             ];
             CatchNotificationService::error($context);
+
+            throw new Exception($exception->getMessage(),  previous:$exception);
         }
     }
 }

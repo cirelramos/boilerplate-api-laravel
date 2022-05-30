@@ -27,30 +27,33 @@ class PlayersTableSeeder extends Seeder
         $newPlayers = [];
 
         $newPlayers[] = [
-            'name'   => 'Alejandro smith',
-            'url'    => 'http://alejandro-smith.cirelramos.com',
-            'photo'  => '',
-            'rank'   => 5,
-            'active' => 1,
-            'renew'  => 1,
+            'name'       => 'Alejandro smith',
+            'url'        => 'http://alejandro-smith.cirelramos.com',
+            'photo'      => '',
+            'rank'       => 5,
+            'active'     => 1,
+            'renew'      => 1,
+            'renew_next' => Carbon::now()->addMonths(12),
             'created_at' => Carbon::now(),
         ];
         $newPlayers[] = [
-            'name'   => 'Jose Perez',
-            'url'    => 'http://jose-perez.cirelramos.com',
-            'photo'  => '',
-            'rank'   => 10,
-            'active' => 1,
-            'renew'  => 0,
+            'name'       => 'Jose Perez',
+            'url'        => 'http://jose-perez.cirelramos.com',
+            'photo'      => '',
+            'rank'       => 10,
+            'active'     => 1,
+            'renew'      => 0,
+            'renew_next' => null,
             'created_at' => Carbon::now(),
         ];
         $newPlayers[] = [
-            'name'   => 'Carlos Gutierrez',
-            'url'    => 'http://carlos-gutierrez.cirelramos.com',
-            'photo'  => '',
-            'rank'   => 1,
-            'active' => 0,
-            'renew'  => 1,
+            'name'       => 'Carlos Gutierrez',
+            'url'        => 'http://carlos-gutierrez.cirelramos.com',
+            'photo'      => '',
+            'rank'       => 1,
+            'active'     => 0,
+            'renew'      => 1,
+            'renew_next' => Carbon::now()->addMonths(12),
             'created_at' => Carbon::now(),
         ];
 

@@ -227,4 +227,27 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    protected function convertValidationExceptionToResponse(ValidationException $e, $request)
+    {
+        $errors = $e->validator->errors()->getMessages();
+        if ($this->isFrontend($request)) {
+            return $request->ajax()
+                ? response()->json($errors, Response::HTTP_UNPROCESSABLE_ENTITY) : redirect()
+                    ->back()
+                    ->withInput($request->input())
+                    ->withErrors($errors);
+        }
+        $messageTranslate = translateInterTerm($e->getMessage());
+        return $this->errorResponseWithMessage(
+            $errors,
+            $messageTranslate,
+            Response::HTTP_UNPROCESSABLE_ENTITY
+        );
+    }
+
+    private function isFrontend($request)
+    {
+        return $request->acceptsHtml() && collect($request->route()->middleware())->contains('web');
+    }
 }
