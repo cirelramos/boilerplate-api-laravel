@@ -7,7 +7,7 @@ use Cirelramos\ErrorNotification\Services\SendEmailNotificationService;
 use Cirelramos\ErrorNotification\Services\SendSlackNotificationService;
 use Cirelramos\ExternalRequest\Services\CatchExternalRequestService;
 use Cirelramos\Languages\Services\LanguageService;
-use Cirelramos\Logs\Services\SendLogConsoleService;
+use Cirelramos\Logs\Facades\LogConsoleFacade;
 use Cirelramos\Response\Traits\ResponseTrait;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
@@ -96,8 +96,7 @@ class Handler extends ExceptionHandler
 
         $infoEndpoint = GetInfoFromExceptionService::execute( $exception);
 
-        $sendLogConsoleService = new SendLogConsoleService();
-        $sendLogConsoleService->execute('error:' . $exception->getMessage(), $infoEndpoint);
+        LogConsoleFacade::full()->log('error:' . $exception->getMessage(), $infoEndpoint);
 
         if (env('APP_ENV') === 'local' && env('NOT_NOTIFICATION_LOCAL') !== null) {
             SendEmailNotificationService::execute($exception, true);
@@ -175,7 +174,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof QueryException) {
-            $sendLogConsoleService->execute('error:' . $exception->getMessage(), $infoEndpoint);
+            LogConsoleFacade::full()->log('error:' . $exception->getMessage(), $infoEndpoint);
             SendEmailNotificationService::execute($exception);
             SendSlackNotificationService::execute($exception);
             $code = $exception->getCode();
@@ -211,7 +210,7 @@ class Handler extends ExceptionHandler
             SendSlackNotificationService::execute($exception);
         }
 
-        $sendLogConsoleService->execute('error:' . $exception->getMessage(), $infoEndpoint);
+        LogConsoleFacade::full()->log('error:' . $exception->getMessage(), $infoEndpoint);
 
         return $this->errorCatchResponse($exception, translateText('Unexpected failure. Try later'));
     }

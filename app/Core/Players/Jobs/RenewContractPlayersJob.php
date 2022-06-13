@@ -4,7 +4,7 @@ namespace App\Core\Players\Jobs;
 
 use App\Core\Players\Services\RenewContractPlayersService;
 use Cirelramos\ErrorNotification\Services\CatchNotificationService;
-use Cirelramos\Logs\Services\SendLogConsoleService;
+use Cirelramos\Logs\Facades\LogConsoleFacade;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,19 +33,12 @@ class RenewContractPlayersJob implements ShouldQueue
     {
         try {
             $array                 = ['message' => "start " . __CLASS__ . " "];
-            $sendLogConsoleService = new SendLogConsoleService();
-            $sendLogConsoleService->execute(
-                'job',
-                $array
-            );
+            LogConsoleFacade::simple()->log( 'job', $array );
 
             $this->renewContractPlayersService->execute();
 
             $array = ['message' => "finish " . __CLASS__ . " "];
-            $sendLogConsoleService->execute(
-                'job',
-                $array
-            );
+            LogConsoleFacade::simple()->log( 'job', $array );
         } catch (Exception $exception) {
             $context = [
                 'url'       => '',
