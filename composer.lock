@@ -566,16 +566,16 @@
         },
         {
             "name": "cirelramos/logs",
-            "version": "1.0.6",
+            "version": "1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cirelramos/log.git",
-                "reference": "109ccb514064c1391e32d2562d39b66d8789f1da"
+                "reference": "07bf11540d128b71653a1a71a2602a875c1b562d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cirelramos/log/zipball/109ccb514064c1391e32d2562d39b66d8789f1da",
-                "reference": "109ccb514064c1391e32d2562d39b66d8789f1da",
+                "url": "https://api.github.com/repos/cirelramos/log/zipball/07bf11540d128b71653a1a71a2602a875c1b562d",
+                "reference": "07bf11540d128b71653a1a71a2602a875c1b562d",
                 "shasum": ""
             },
             "require": {
@@ -622,9 +622,9 @@
             ],
             "support": {
                 "issues": "https://github.com/cirelramos/log/issues",
-                "source": "https://github.com/cirelramos/log/tree/1.0.6"
+                "source": "https://github.com/cirelramos/log/tree/1.0.9"
             },
-            "time": "2022-06-13T16:43:27+00:00"
+            "time": "2022-06-13T18:12:32+00:00"
         },
         {
             "name": "cirelramos/response",
