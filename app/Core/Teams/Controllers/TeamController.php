@@ -2,7 +2,6 @@
 
 namespace App\Core\Teams\Controllers;
 
-use App\Core\Countries\Resources\RegionRapiResource;
 use App\Core\Players\Models\Player;
 use App\Core\Players\Resources\PlayerResource;
 use App\Core\Teams\Collections\TeamsCollection;
@@ -306,7 +305,7 @@ class TeamController extends Controller
      *   @OA\RequestBody(
      *       @OA\JsonContent(
      *          allOf={
-     *             @OA\Schema(ref="#/components/schemas/StoreRegionRapi"),
+     *             @OA\Schema(ref="#/components/schemas/StoreTeamRequest"),
      *          },
      *      ),
      *    ),
@@ -425,7 +424,7 @@ class TeamController extends Controller
             $team->deleteWithCache();
             DB::commit();
 
-            $data[ 'team' ] = new RegionRapiResource($team);
+            $data[ 'team' ] = new TeamResource($team);
 
             return $this->successResponseWithMessage($data, $successMessage);
 

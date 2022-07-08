@@ -2,7 +2,6 @@
 
 namespace App\Core\Players\Controllers;
 
-use App\Core\Countries\Resources\RegionRapiResource;
 use App\Core\Players\Collections\PlayersCollection;
 use App\Core\Players\Models\Player;
 use App\Core\Players\Requests\StorePlayerRequest;
@@ -250,7 +249,7 @@ class PlayerController extends Controller
      *   @OA\RequestBody(
      *       @OA\JsonContent(
      *          allOf={
-     *             @OA\Schema(ref="#/components/schemas/StoreRegionRapi"),
+     *             @OA\Schema(ref="#/components/schemas/StorePlayerRequest"),
      *          },
      *      ),
      *    ),
@@ -365,7 +364,7 @@ class PlayerController extends Controller
             $player->deleteWithCache();
             DB::commit();
 
-            $data[ 'player' ] = new RegionRapiResource($player);
+            $data[ 'player' ] = new PlayerResource($player);
 
             return $this->successResponseWithMessage($data, $successMessage);
 
