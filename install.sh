@@ -4,7 +4,7 @@ sudo docker rm -f container-mysql-boilerplate > /dev/null && \
 sudo docker rm -f container-redis-boilerplate > /dev/null && \
 sudo docker rm -f boilerplate > /dev/null && \
 echo "CLONE PROJECT" && \
-git clone git@github.com:cirelramos/boirleplate-api-laravel.git && \
+git clone git@github.com:cirelramos/boilerplate-api-laravel.git && \
 cd boilerplate && \
 echo "CREATE NETWORK AND CONTAINERS MYSQL AND REDIS" && \
 sudo docker-compose up -d && \
