@@ -174,7 +174,6 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof QueryException) {
-            LogConsoleFacade::full()->log('error:' . $exception->getMessage(), $infoEndpoint);
             SendEmailNotificationService::execute($exception);
             SendSlackNotificationService::execute($exception);
             $code = $exception->getCode();
