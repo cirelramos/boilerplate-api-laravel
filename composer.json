@@ -1,5 +1,5 @@
 {
-    "name": "laravel/laravel",
+    "name": "cirelramos/boilerplate-laravel",
     "type": "project",
     "description": "The Laravel Framework.",
     "keywords": ["framework", "laravel"],
@@ -13,6 +13,7 @@
         "cirelramos/languages": "^1.0",
         "cirelramos/logs": "^1.0",
         "cirelramos/response": "^1.0",
+        "cirelramos/simple-notification": "^1.0",
         "darkaonline/l5-swagger": "8.*",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
