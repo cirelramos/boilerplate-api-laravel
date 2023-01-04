@@ -18,6 +18,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Response;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -91,12 +92,13 @@ class Handler extends ExceptionHandler
 
     public function handlerException($request, Throwable $exception)
     {
+
         $location = new LanguageService();
         $location->execute($request);
 
         $infoEndpoint = GetInfoFromExceptionService::execute( $exception);
 
-        LogConsoleFacade::full()->log('error:' . $exception->getMessage(), $infoEndpoint);
+        LogConsoleFacade::full()->tracker()->log('error: ' . $exception->getMessage(), $infoEndpoint);
 
         if (env('APP_ENV') === 'local' && env('NOT_NOTIFICATION_LOCAL') !== null) {
             SendEmailNotificationService::execute($exception, true);
@@ -104,14 +106,17 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof HttpException) {
+
             if($exception->getCode() === Response::HTTP_FORBIDDEN){
-                return response()->json([], $exception->getCode());
+                $data = array(
+                    $exception->getMessage(),
+                    $exception->getCode()
+                );
+
+                return response()->json($data, $exception->getCode());
             }
             if ($exception->getCode() !== 0) {
-                return $this->errorResponseWithMessage(
-                    message: $exception->getMessage(),
-                    code   : $exception->getCode()
-                );
+                return $this->errorCatchResponse($exception, $exception->getMessage());
             }
         }
 
@@ -119,58 +124,53 @@ class Handler extends ExceptionHandler
             return $this->convertValidationExceptionToResponse($exception, $request);
         }
 
-        if ($exception->getCode() === Response::HTTP_UNPROCESSABLE_ENTITY) {
-            return $this->errorResponseWithMessage(
-                message: $exception->getMessage(),
-                code   : Response::HTTP_UNPROCESSABLE_ENTITY
+        if($exception->getCode() === Response::HTTP_UNPROCESSABLE_ENTITY){
+            return $this->errorCatchResponse(
+                $exception,
+                $exception->getMessage(),
+                Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
 
-        if ($exception instanceof ServiceUnavailableHttpException) {
-            return $this->errorResponseWithMessage(message: $exception->getMessage());
+        if($exception instanceof ServiceUnavailableHttpException){
+            return $this->errorCatchResponse(
+                $exception,
+                $exception->getMessage()
+            );
         }
 
         if ($exception instanceof ModelNotFoundException) {
             $model = strtolower(class_basename($exception->getModel()));
-            return $this->errorResponseWithMessage(
-                message: translateText(
-                             'There is no instance of'
-                         ) . " {$model} " .
-                         translateText('with the specified id'),
-                code   : \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND
-            );
+            return $this->errorCatchResponse($exception,translateText('There is no instance of') . " {$model} " . translateText('with the specified id'), \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND);
         }
 
         if ($exception instanceof AuthenticationException) {
-            SendSlackNotificationService::execute($exception);
-            return $this->errorResponseWithMessage(
-                message: translateText('Unauthenticated'),
-                code   : Response::HTTP_UNAUTHORIZED
-            );
+            return $this->unauthenticated($request, $exception);
         }
 
         if ($exception instanceof AuthorizationException) {
-            return $this->errorResponseWithMessage(
-                message: translateText('You do not have permissions to execute this action'),
-                code   : Response::HTTP_FORBIDDEN
+            return $this->errorCatchResponse(
+                $exception,
+                translateText('You do not have permissions to execute this action'),
+                Response::HTTP_FORBIDDEN,
             );
         }
 
         if ($exception instanceof NotFoundHttpException) {
-            $data = [ 'url' => $request->fullUrl(), 'method' => $request->method() ];
-            return $this->errorResponseWithMessage($data, translateText('The specified URL was not found'), \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND);
+            return $this->errorCatchResponse($exception, translateText('The specified URL was not found'), \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND);
         }
 
         if ($exception instanceof MethodNotAllowedHttpException) {
-            return $this->errorResponseWithMessage(
-                message: translateText('The specified method is invalid'),
-                code   : \Symfony\Component\HttpFoundation\Response::HTTP_METHOD_NOT_ALLOWED
-            );
+            return $this->errorCatchResponse($exception,translateText('The specified method is invalid'), \Symfony\Component\HttpFoundation\Response::HTTP_METHOD_NOT_ALLOWED);
         }
 
         if ($exception instanceof HttpException) {
             SendSlackNotificationService::execute($exception);
-            return $this->errorResponseWithMessage($exception->getMessage(), $exception->getStatusCode());
+            return $this->errorCatchResponse(
+                $exception,
+                $exception->getMessage(),
+                $exception->getStatusCode(),
+            );
         }
 
         if ($exception instanceof QueryException) {
@@ -178,38 +178,46 @@ class Handler extends ExceptionHandler
             SendSlackNotificationService::execute($exception);
             $code = $exception->getCode();
             if ($code == 1451) {
-                return $this->errorResponseWithMessage(
-                    'You can not delete the resource because the resource is related with someone else.',
-                    \Symfony\Component\HttpFoundation\Response::HTTP_CONFLICT
-                );
+                return $this->errorCatchResponse($exception,'You can not delete the resource because the resource is related with someone else.', \Symfony\Component\HttpFoundation\Response::HTTP_CONFLICT);
             }
-            return $this->errorResponseWithMessage(
-                'Query error. ' . $exception->getMessage(), Response::HTTP_SERVICE_UNAVAILABLE
-            );
+            return $this->errorCatchResponse($exception,'Query error. ' . $exception->getMessage(), Response::HTTP_SERVICE_UNAVAILABLE);
         }
 
         if ($exception instanceof TokenMismatchException) {
-            return $this->errorCatchResponse($exception, $exception->getMessage());
+            return $this->errorCatchResponse(
+                $exception,
+                $exception->getMessage(),
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+            );
         }
 
         if ($exception instanceof ClientException) {
             $data = CatchExternalRequestService::execute($request, $exception);
 
-            return $this->errorExternalRequestMessage($data, $data[ 'code' ]);
+            $code = Response::HTTP_SERVICE_UNAVAILABLE;
+            if(is_array($data) && array_key_exists('code', $data)) {
+              $code = $data[ 'code' ];
+            }
+            SendEmailNotificationService::execute($exception);
+            SendSlackNotificationService::execute($exception);
+            return $this->errorExternalRequestMessage($data, $code );
         }
 
         if ($exception instanceof RequestException) {
             $data = CatchExternalRequestService::execute($request, $exception);
 
-            return $this->errorExternalRequestMessage($data, $data[ 'code' ]);
+            $code = Response::HTTP_SERVICE_UNAVAILABLE;
+            if(is_array($data) && array_key_exists('code', $data)) {
+                $code = $data[ 'code' ];
+            }
+
+            return $this->errorExternalRequestMessage($data, $code);
         }
 
         if (env('APP_ENV', null) !== 'dev' && env('APP_ENV', null) !== 'local') {
             SendEmailNotificationService::execute($exception);
             SendSlackNotificationService::execute($exception);
         }
-
-        LogConsoleFacade::full()->log('error:' . $exception->getMessage(), $infoEndpoint);
 
         return $this->errorCatchResponse($exception, translateText('Unexpected failure. Try later'));
     }
