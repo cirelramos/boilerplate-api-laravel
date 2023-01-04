@@ -1,0 +1,45 @@
+version: '3'
+services:
+  container_mysql_boilerplate:
+    image: cirelramos/mysql-5-7-with-logs:boilerplate
+    container_name: container-mysql-boilerplate
+    hostname: container-mysql-boilerplate
+    user: mysql
+    tty: true
+    ports:
+     - "3307:3306"
+    environment:
+      MYSQL_DATABASE: "boilerplate"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      ENV_MYSQL_MULTIPLE_DATABASE: "boilerplate"
+    volumes:
+     - mysql-volumen-boilerplate:/var/lib/mysql
+    restart: always
+    networks:
+     - boilerplate-network
+
+  container_redis_boilerplate:
+    container_name: container-redis-boilerplate
+    hostname: container-redis-boilerplate
+    image: redis:alpine
+    ports:
+     - "6380:6379"
+    volumes:
+     - redis-volumen-boilerplate:/data
+    restart: always
+    networks:
+     - boilerplate-network
+
+networks:
+  boilerplate-network:
+    driver: "bridge"
+    ipam:
+          driver: default
+          config:
+                 - subnet: 172.73.73.0/24 # allow for container
+volumes:
+  mysql-volumen-boilerplate:
+    driver: "local"
+  redis-volumen-boilerplate:
+    driver: "local"

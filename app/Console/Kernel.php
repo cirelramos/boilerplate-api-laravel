@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
             ->everyFiveMinutes()
             ->sendOutputTo('/dev/stderr');
 
-        $schedule->command('players:renew-contracts')
+        $schedule->command('players:renew-contracts async enable_record')
             ->withoutOverlapping()
             ->everyMinute()
             ->sendOutputTo('/dev/stderr');

@@ -182,6 +182,25 @@ return [
         //horizon
         App\Providers\HorizonServiceProvider::class,
 
+        //aws
+        Aws\Laravel\AwsServiceProvider::class,
+        // cache
+        Cirelramos\Cache\Providers\ServiceProvider::class,
+        // get credentials aws
+        Cirelramos\Database\Providers\ServiceProvider::class,
+        Cirelramos\Database\Providers\DatabaseServiceProvider::class,
+        // logs
+        Cirelramos\Logs\Providers\ServiceProvider::class,
+        Cirelramos\Logs\Providers\QueryLogProvider::class,
+        //languages
+        Cirelramos\Languages\Providers\ServiceProvider::class,
+        //external request
+        Cirelramos\ExternalRequest\Providers\ServiceProvider::class,
+        //error notification
+        Cirelramos\ErrorNotification\Providers\ServiceProvider::class,
+        // simple notification
+        Cirelramos\SimpleNotification\Providers\ServiceProvider::class,
+
     ],
 
     /*

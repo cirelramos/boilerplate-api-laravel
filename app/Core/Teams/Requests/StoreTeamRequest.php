@@ -47,7 +47,7 @@ class StoreTeamRequest extends FormRequest
      *       example=1
      *     ),
      *     @OA\Property(
-     *       property="countries",
+     *       property="players",
      *       type="array",
      *       @OA\Items(
      *          ref="#/components/schemas/StoreTeamHasPlayersRequest"
@@ -78,7 +78,7 @@ class StoreTeamRequest extends FormRequest
 
             'players'                 => 'nullable|array|min:1',
             'players.*'               => 'required',
-            'players.*.identifier'    => 'required|integer',
+            'players.*.identifier'    => 'required|integer|exists:players,id_player',
         ];
     }
 }

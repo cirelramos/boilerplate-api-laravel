@@ -2,6 +2,7 @@
 
 namespace App\Core\Teams\Resources;
 
+use App\Core\Players\Resources\PlayerResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -42,6 +43,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *       description="active team",
  *       example=1
  *     ),
+ *     @OA\Property(
+ *       property="players",
+ *       type="array",
+ *       @OA\Items(
+ *          ref="#/components/schemas/Player"
+ *        )
+ *     ),
  *  ),
  */
 class TeamResource extends JsonResource
@@ -56,6 +64,7 @@ class TeamResource extends JsonResource
             'photo'      => $this->photo,
             'rank'       => $this->rank,
             'active'     => $this->active,
+            'players'    => PlayerResource::collection($this->whenLoaded('players')),
         ];
     }
 }

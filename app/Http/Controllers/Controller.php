@@ -78,7 +78,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * @OA\Schema(
  *     schema="401",
  *     @OA\Property(
- *       property="message",
+ *       property="error",
  *       type="string",
  *       example="Non authenticated"
  *     ),
@@ -94,7 +94,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * @OA\Schema(
  *     schema="403",
  *     @OA\Property(
- *       property="message",
+ *       property="error",
  *       type="string",
  *       example="This #MODEL is not allowed for you"
  *     ),
@@ -110,7 +110,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * @OA\Schema(
  *     schema="404",
  *     @OA\Property(
- *       property="message",
+ *       property="error",
  *       type="string",
  *       example="URL not found"
  *     ),
@@ -126,7 +126,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * @OA\Schema(
  *     schema="405",
  *     @OA\Property(
- *       property="message",
+ *       property="error",
  *       type="string",
  *       example="The specified method is invalid"
  *     ),
@@ -142,7 +142,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * @OA\Schema(
  *     schema="422",
  *     @OA\Property(
- *       property="message",
+ *       property="error",
  *       type="string",
  *       example="validation exception"
  *     ),
@@ -158,7 +158,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
  * @OA\Schema(
  *     schema="500",
  *     @OA\Property(
- *       property="message",
+ *       property="error",
  *       type="string",
  *       example="Internal server error"
  *     ),

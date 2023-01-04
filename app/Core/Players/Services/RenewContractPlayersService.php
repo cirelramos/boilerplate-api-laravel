@@ -2,18 +2,22 @@
 
 namespace App\Core\Players\Services;
 
+use App\Core\Players\Jobs\CheckPlayersRankJob;
 use App\Core\Players\Models\Player;
-use Cirelramos\ErrorNotification\Services\CatchNotificationService;
 use Exception;
-use Http\Client\Exception\HttpException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Cirelramos\Cache\Models\ModelCacheConst;
+use Cirelramos\Cache\Services\DispatchJobService;
 
 /**
  *
  */
 class RenewContractPlayersService
 {
+
+    public function __construct(private CheckPlayersRankService $checkPlayersRankService) { }
+
     public function execute(): void
     {
         try {
@@ -24,15 +28,18 @@ class RenewContractPlayersService
                 'renew_at'   => Carbon::now(),
                 'renew'      => 0,
             ];
-           Player::where('renew', '=', 1)
+            Player::where('renew', '=', 1)
                 ->where('renew_next', '>=', Carbon::now())
-                ->update($update)
-            ;
+                ->updateWithCache($update);
             DB::commit();
+
+            $typeJob      = request()->header(ModelCacheConst::HEADER_MODE_JOB);
+            $disableQuery = request()->header(ModelCacheConst::HEADER_ACTIVE_RECORD);
+            $job          = new CheckPlayersRankJob($typeJob, $disableQuery, $this->checkPlayersRankService);
+            DispatchJobService::execute($job, config('queue-names.general'));
         } catch (Exception $exception) {
             DB::rollBack();
-            // CatchNotificationService::error(['exception' => $exception,]);
-            throw new Exception($exception->getMessage(),  previous:$exception);
+            throw new Exception($exception->getMessage(), previous: $exception);
         }
     }
 }

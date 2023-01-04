@@ -30,7 +30,7 @@ class PlayersTableSeeder extends Seeder
             'name'       => 'Alejandro smith',
             'url'        => 'http://alejandro-smith.cirelramos.com',
             'photo'      => '',
-            'rank'       => 5,
+            'rank'       => 6,
             'active'     => 1,
             'renew'      => 1,
             'renew_next' => Carbon::now()->addMonths(12),

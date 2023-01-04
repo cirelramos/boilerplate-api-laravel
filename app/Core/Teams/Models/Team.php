@@ -2,6 +2,8 @@
 
 namespace App\Core\Teams\Models;
 
+use App\Core\Players\Models\Player;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Cirelramos\Cache\Models\CacheModel;
 
 /**
@@ -9,6 +11,8 @@ use Cirelramos\Cache\Models\CacheModel;
  */
 class Team extends CacheModel
 {
+    use SoftDeletes;
+
     /**
      * The table associated with the model.
      *
@@ -36,4 +40,10 @@ class Team extends CacheModel
     ];
 
     public const TAG_CACHE_MODEL = 'TAG_CACHE_TEAM_';
+
+    public function players()
+    {
+        return $this->belongsToMany(Player::class, 'teams_has_players', 'id_team', 'id_player')
+            ->whereNull('teams_has_players.deleted_at');
+    }
 }

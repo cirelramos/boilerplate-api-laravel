@@ -20,6 +20,9 @@ Route::resource('players', 'Players\Controllers\PlayerController');
 /*================ TEAMS ================*/
 Route::resource('teams', 'Teams\Controllers\TeamController');
 
+/*================ UTILS ================*/
+Route::get('/util/clear_cache', 'Base\Controllers\UtilController@clear_cache');
+
 /*================ OAUTH ================*/
 Route::post('oauth/login', 'Auth\Controllers\LoginController@login')->name('login');
 Route::get('oauth/login', 'Auth\Controllers\LoginController@login')->name('login');

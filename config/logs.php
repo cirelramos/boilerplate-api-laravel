@@ -58,6 +58,14 @@ return [
         'password'
     ],
 
+    /*
+     * get global special values from request
+     * example:
+     */
+    'get_global_special_values_from_request' => [
+        'job_name_and_timeline' => 'job_name_and_timeline',
+    ],
+
 
     /*
      * get special values from request

@@ -54,7 +54,14 @@ return [
     'elements_from_header_request' => [
         "origin",
         "Authorization",
-        "force-not-redirect",
-        "force-ignore-maintenance",
+        "tool-force-not-redirect-111222",
+        "tool-force-ignore-maintenance-111222",
     ],
+
+
+    /*
+     * name header to force query go to database
+     * Example: "force-not-cache"
+     */
+    'header_force_not_cache_name' => 'tool-force-not-cache-111333',
 ];

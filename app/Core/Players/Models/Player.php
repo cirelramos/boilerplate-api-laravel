@@ -2,6 +2,7 @@
 
 namespace App\Core\Players\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Cirelramos\Cache\Models\CacheModel;
 
 /**
@@ -9,6 +10,8 @@ use Cirelramos\Cache\Models\CacheModel;
  */
 class Player extends CacheModel
 {
+    use SoftDeletes;
+
     /**
      * The table associated with the model.
      *

@@ -82,6 +82,8 @@ class TeamController extends Controller
     {
         $teams = Team::query()->orderByRequest()->paginateFromCacheByRequest();
 
+        $teams->load(['players']);
+
         $teamsCollection = new TeamsCollection($teams);
 
         $data[ 'teams' ] = $teamsCollection;
@@ -139,6 +141,8 @@ class TeamController extends Controller
         $response = $this->successResponseWithMessage($data);
 
         SetCacheService::execute($customKey, $response, $tag);
+
+        return $this->successResponseWithMessage($data);
     }
 
     /**
@@ -204,6 +208,7 @@ class TeamController extends Controller
             $team->saveWithCache();
             DB::commit();
 
+            $team = $team->load(['players']);
             $data[ 'team' ] = new TeamResource($team);
 
             return $this->successResponseWithMessage($data, $successMessage, Response::HTTP_CREATED);
@@ -281,6 +286,7 @@ class TeamController extends Controller
             throw $exception;
         }
 
+        $team = $team->load(['players']);
         $data[ 'team' ] = new TeamResource($team);
 
         $response = $this->successResponseWithMessage($data);
@@ -356,6 +362,7 @@ class TeamController extends Controller
             $team->saveWithCache();
             DB::commit();
 
+            $team = $team->load(['players']);
             $data[ 'team' ] = new TeamResource($team);
 
             return $this->successResponseWithMessage($data, $successMessage);
