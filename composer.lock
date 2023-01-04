@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed02440f44e5a3fbac30286e6d113b4d",
+    "content-hash": "192b64b82c047e2b32eff62df6751b45",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -338,19 +338,20 @@
         },
         {
             "name": "cirelramos/cache-query-builder",
-            "version": "1.0.16",
+            "version": "1.0.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cirelramos/cache-query-builder.git",
-                "reference": "994f71fb1fc6a484bda7e52707c1c27781ce9bb4"
+                "reference": "7b0dd3b4a88eedea9a1db0d6a99f538d08f6bdd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cirelramos/cache-query-builder/zipball/994f71fb1fc6a484bda7e52707c1c27781ce9bb4",
-                "reference": "994f71fb1fc6a484bda7e52707c1c27781ce9bb4",
+                "url": "https://api.github.com/repos/cirelramos/cache-query-builder/zipball/7b0dd3b4a88eedea9a1db0d6a99f538d08f6bdd6",
+                "reference": "7b0dd3b4a88eedea9a1db0d6a99f538d08f6bdd6",
                 "shasum": ""
             },
             "require": {
+                "cirelramos/logs": "^1.0",
                 "illuminate/config": "^6.9|^7.0|^8.0|^9.0",
                 "illuminate/console": "^6.9|^7.0|^8.0|^9.0",
                 "illuminate/contracts": "^6.9|^7.0|^8.0|^9.0",
@@ -364,6 +365,11 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "1.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Cirelramos\\Cache\\Providers\\ServiceProvider"
+                    ]
                 }
             },
             "autoload": {
@@ -390,9 +396,9 @@
             ],
             "support": {
                 "issues": "https://github.com/cirelramos/cache-query-builder/issues",
-                "source": "https://github.com/cirelramos/cache-query-builder/tree/1.0.16"
+                "source": "https://github.com/cirelramos/cache-query-builder/tree/1.0.17"
             },
-            "time": "2022-08-24T09:42:01+00:00"
+            "time": "2023-01-03T19:41:13+00:00"
         },
         {
             "name": "cirelramos/error-notification",
@@ -640,6 +646,72 @@
                 "source": "https://github.com/cirelramos/log/tree/1.0.13"
             },
             "time": "2023-01-03T19:36:10+00:00"
+        },
+        {
+            "name": "cirelramos/raw-query",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cirelramos/raw-query.git",
+                "reference": "44f7406d8d03cb0eb8645d0b53fd30db8758947f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cirelramos/raw-query/zipball/44f7406d8d03cb0eb8645d0b53fd30db8758947f",
+                "reference": "44f7406d8d03cb0eb8645d0b53fd30db8758947f",
+                "shasum": ""
+            },
+            "require": {
+                "cirelramos/cache-query-builder": "^1.0",
+                "cirelramos/error-notification": "^1.0",
+                "cirelramos/logs": "^1.0",
+                "guzzlehttp/guzzle": "^6.3.1|^7.0.1",
+                "illuminate/config": "^7.20|^8.19|^9.0",
+                "illuminate/contracts": "^7.20|^8.19|^9.0",
+                "illuminate/database": "^7.20|^8.19|^9.0",
+                "illuminate/http": "^7.20|^8.19|^9.0",
+                "php": "^7.4|^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Cirelramos\\RawQuery\\Providers\\ServiceProvider"
+                    ],
+                    "aliases": {
+                        "RawQuery": "Cirelramos\\RawQuery\\Facades\\RawQuery"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cirelramos\\RawQuery\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cirel Ramos",
+                    "email": "cirelramos@gmail.com"
+                }
+            ],
+            "description": "The Response is a package to run raw query .",
+            "keywords": [
+                "database",
+                "laravel",
+                "log"
+            ],
+            "support": {
+                "issues": "https://github.com/cirelramos/raw-query/issues",
+                "source": "https://github.com/cirelramos/raw-query/tree/1.0.1"
+            },
+            "time": "2023-01-04T04:02:07+00:00"
         },
         {
             "name": "cirelramos/response",

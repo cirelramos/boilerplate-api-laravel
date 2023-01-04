@@ -12,6 +12,7 @@
         "cirelramos/external-request": "^1.0",
         "cirelramos/languages": "^1.0",
         "cirelramos/logs": "^1.0",
+        "cirelramos/raw-query": "^1.0",
         "cirelramos/response": "^1.0",
         "cirelramos/simple-notification": "^1.0",
         "darkaonline/l5-swagger": "8.*",
